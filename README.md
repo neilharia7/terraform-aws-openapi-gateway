@@ -13,10 +13,10 @@ data "github_repository_file" "workspace_open_api_file" {
 
 locals {
   open_api_file = data.github_repository_file.workspace_open_api_file.content
-  temp1         = replace(local.open_api_file, "$${AWS::Region}", var.region)
-  temp2         = replace(local.temp1, "Fn::Sub:", "")
-  temp3         = replace(local.temp2, "$${Lambda.Arn}", aws_lambda_function.pet_function.function_arn)  # replace with your function arn
-  final         = replace(local.temp3, "$${CognitoLambda.Arn}", aws_lambda_function.cognito_function.function_arn)  # replace with your cognito function arn
+  update_region = replace(local.open_api_file, "$${AWS::Region}", var.region)
+  cleanup       = replace(local.update_region, "Fn::Sub:", "")
+  update_lambda = replace(local.cleanup, "$${Lambda.Arn}", aws_lambda_function.pet_function.function_arn)  # replace with your function arn
+  final         = replace(local.update_lambda, "$${CognitoLambda.Arn}", aws_lambda_function.cognito_function.function_arn)  # replace with your cognito function arn
 }
 
 module "openapi_gateway" {
@@ -32,3 +32,17 @@ module "openapi_gateway" {
   body  = local.final
 }
 ```
+
+## Requirements
+
+| Name | Version   |
+|------|-----------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.69.0 |
+
+## Providers
+
+| Name | Version   |
+|------|-----------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.69.0 |
+
